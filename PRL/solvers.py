@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 class Solver():
-    """Abstract class that every solver MUST inherit from."""
+    """Abstract class that every solver MUST inherit from.."""
 
     def solve(self, M, n_rows, n_cols):
         """Solves the two.players zero-sum game on the given matrix  game.
