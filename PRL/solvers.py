@@ -73,10 +73,7 @@ class LinProg(Solver):
         return (None, Q, V)
 
 class FictitiousPlay(Solver):
-    """Fictitious Play (FP) algorithm for two-players zero-sum game.
-
-    FP is an approximated solver, based on the algorithm described in
-    ``Iterative solutions of games by fictitious play``, G.W. Brown, in Activity Analysis of Production and Allocation 374–376, 1951."""
+    """Fictitious Play (FP) algorithm for two-players zero-sum game"""
 
     def __init__(self, iterations=1000000):
         """Initializes the Fictitious Play algorithm.
