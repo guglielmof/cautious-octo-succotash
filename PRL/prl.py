@@ -80,6 +80,16 @@ class PRL:
         r[y_p] = +self.gen_feat.get_feat_value(f, x_p)
         r[y_n] = -self.gen_feat.get_feat_value(f, x_n)
         return r
+    
+    def row_repr(self, p):
+        r = np.zeros(self.n_cols)
+        for i, fts in enumerate(self.feat_list):
+            q, f = fts
+            r_rep = self.col_pref_rep(p, f)
+            c_rep = self.col_pref_rep(q, f)
+            r[i] = np.dot(r_rep, c_rep)
+        return r
+    
 
 
     def row_prefs_repr(self, f):
@@ -147,6 +157,51 @@ class PRL:
                         R = self.row_prefs_repr(f)
                         x = np.dot(R, rp)
                         self.M[:,j] = x
+            if verbose:
+                logging.info("# of kept columns: %d" %(np.sum(Q>0)))
+                logging.info("# of unique fetures: %d\n" %len(set([f for i, (p, f) in enumerate(self.feat_list) if Q[i]>0.])))
+        self.Q = Q
+
+        
+     def fit_2(self, iterations=1000, verbose=False):
+        """Trains the PRL method.
+
+        :param iterations: the number of iterations of PRL
+        :param verbose: whether the output is verbose or not
+        :type iterations: int
+        :type verbose: bool
+        """
+        if verbose:
+            logging.info("Starting training of %s" %self)
+            logging.info("Matrix game initialization...")
+
+        for j in xrange(self.n_cols):
+            (p, f), rp = self._get_new_col()
+            self.feat_list.append((p, f))
+            self.feat_set.add((p, f))
+            R = self.row_prefs_repr(f)
+            x = np.dot(R, rp)
+            self.M[:,j] = x
+
+        #iterative updates
+        for t in xrange(iterations):
+            if verbose: logging.info("PRL iteration %d/%d" %(t+1, iterations))
+            (P, Q, V) = self.solver.solve(self.M, self.n_rows, self.n_cols)
+            if verbose: logging.info("Value of the game (current margin): %.6f" %V)
+            if (t+1 < iterations):
+                for j in xrange(self.n_cols):
+                    if Q[j] <= 0:
+                        (p, f), rp = self._get_new_col()
+                        self.feat_set.remove(self.feat_list[j])
+                        self.feat_list[j] = (p, f)
+                        self.feat_set.add((p, f))
+                        R = self.row_prefs_repr(f)
+                        x = np.dot(R, rp)
+                        self.M[:,j] = x
+                
+                for i, p in enumerate(self.pref_list):
+                    self.M[i, :] = self.row_repr(p)
+                    
             if verbose:
                 logging.info("# of kept columns: %d" %(np.sum(Q>0)))
                 logging.info("# of unique fetures: %d\n" %len(set([f for i, (p, f) in enumerate(self.feat_list) if Q[i]>0.])))
