@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import cvxopt
 
 class Solver():
     """Abstract class that every solver MUST inherit from.."""
@@ -53,7 +54,7 @@ class LinProg(Solver):
         I = np.eye(n_cols+1)
         I = np.array([I[i] for i in range(len(I)-1)])
         
-        G = -np.concatenate((np.concatenate((M, -np.ones(n_rows)), axis=1), I), axis=0)
+        G = -np.concatenate((np.concatenate((M, -np.ones((n_rows, 1))), axis=1), I), axis=0)
         h = np.zeros((n_rows+n_cols, 1))
         A = np.ones((1, n_cols+1))
         A[0, -1] = 0
