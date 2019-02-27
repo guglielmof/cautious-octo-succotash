@@ -42,6 +42,34 @@ class Solver():
         """
         pass
 
+    
+class LinProg(Solver):
+    def solve(self, M, n_rows, n_cols):
+        # Find distribution on columns that 
+        # maximizes the value of the game
+        c = np.zeros((n_cols+1, 1))
+        c[-1, 0] = -1
+        
+        I = np.eye(n_cols+1)
+        I = np.array([I[i] for i in range(len(I)-1)])
+        
+        G = -np.concatenate((np.concatenate((M, -np.ones(n_rows)), axis=1), I), axis=0)
+        h = np.zeros((n_rows+n_cols, 1))
+        A = np.ones((1, n_cols+1))
+        A[0, -1] = 0
+        b =  np.array([[1.]])
+        
+        c = cvxopt.matrix(c)
+        G = cvxopt.matrix(G)
+        h = cvxopt.matrix(h)
+        A = cvxopt.matrix(A)
+        b = cvxopt.matrix(b)
+        sol = cvxopt.solvers.lp(c, G, h, A, b)
+        
+        V = sol['x'][-1]
+        Q = np.array(sol['x'].T)[0][:-1]
+        
+        return (None, Q, V)
 
 class FictitiousPlay(Solver):
     """Fictitious Play (FP) algorithm for two-players zero-sum game.
