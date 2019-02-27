@@ -88,7 +88,7 @@ with open(options['config_file'], "r") as f:
 
 #TRAINING PRL
 prl = PRL(gen_pref_training, gen_feat, dim, budget, solver)
-prl.fit(iterations, options["verbose"])
+prl.fit_2(iterations, options["verbose"])
 #
 
 #EVALUATION
